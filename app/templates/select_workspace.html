@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Select Workspace — USX Migrator{% endblock %}
+
+{% block steps %}
+<div class="step-indicator">
+    <div class="step active">
+        <span class="step-number">1</span> Select Workspace
+    </div>
+    <div class="step">
+        <span class="step-number">2</span> Assessment Report
+    </div>
+    <div class="step">
+        <span class="step-number">3</span> Remediation
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-3">🔗 Connect to Azure</h2>
+                <p class="text-muted">
+                    Select a Sentinel-enabled workspace to assess for Defender portal migration.
+                    Make sure you've run <code>az login</code> before starting.
+                </p>
+
+                {% if auth_error %}
+                <div class="alert alert-danger">
+                    <strong>Authentication Error:</strong> {{ auth_error }}
+                    <br><br>
+                    <code>az login</code> — Run this in your terminal, then refresh this page.
+                </div>
+                {% endif %}
+
+                {% if permission_warnings %}
+                <div class="alert alert-warning">
+                    <strong>⚠️ Permission Check:</strong>
+                    <ul class="mb-0 mt-2">
+                    {% for warning in permission_warnings %}
+                        <li>{{ warning }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if workspaces %}
+                <form action="/assess" method="POST" onsubmit="showLoading('Discovering workspace configuration...')">
+                    <div class="mb-4">
+                        <label for="workspace" class="form-label fw-bold">Sentinel Workspace</label>
+                        <select class="form-select form-select-lg" name="workspace" id="workspace" required>
+                            <option value="" disabled selected>Choose a workspace...</option>
+                            {% for ws in workspaces %}
+                            <option value="{{ ws.subscription_id }}|{{ ws.resource_group }}|{{ ws.workspace_name }}">
+                                {{ ws.workspace_name }}
+                                ({{ ws.subscription_name }} / {{ ws.resource_group }})
+                                — {{ ws.location }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        🔍 Run Assessment
+                    </button>
+                </form>
+                {% elif not auth_error %}
+                <div class="alert alert-info">
+                    <strong>No Sentinel workspaces found.</strong>
+                    Make sure your account has access to subscriptions with Microsoft Sentinel enabled.
+                </div>
+                {% endif %}
+
+                {% if history %}
+                <hr>
+                <h5>📜 Previous Assessments</h5>
+                <div class="list-group">
+                    {% for entry in history %}
+                    <a href="/report/{{ entry.filename }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ entry.workspace_name }}</strong>
+                            <br><small class="text-muted">{{ entry.timestamp }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-danger">{{ entry.critical_count }} critical</span>
+                            <span class="badge bg-warning text-dark">{{ entry.warning_count }} warnings</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

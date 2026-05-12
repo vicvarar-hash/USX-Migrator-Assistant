@@ -1,0 +1,57 @@
+{
+    "mcpServers": {
+        "ado-identity": {
+            "command": "agency",
+            "args": [
+                "mcp",
+                "bluebird",
+                "--organization",
+                "identitydivision",
+                "--project",
+                "Engineering"
+            ],
+            "tools": [
+                "*"
+            ]
+        },
+        "msft-learn": {
+            "command": "agency",
+            "args": [
+                "mcp",
+                "msft-learn"
+            ],
+            "tools": [
+                "*"
+            ]
+        },
+        "workiq": {
+            "type": "stdio",
+            "command": "agency",
+            "args": [
+                "mcp",
+                "workiq"
+            ]
+        },
+        "mail": {
+            "command": "agency",
+            "args": [
+                "mcp",
+                "mail"
+            ]
+        },
+        "calendar": {
+            "command": "agency",
+            "args": [
+                "mcp",
+                "calendar"
+            ]
+        },
+        "teams": {
+            "command": "agency",
+            "args": [
+                "mcp",
+                "teams"
+            ]
+        }
+    }
+}

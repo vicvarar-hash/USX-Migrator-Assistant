@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Fix One-by-One — {{ workspace_name }}{% endblock %}
+
+{% block steps %}
+<div class="step-indicator">
+    <div class="step done">
+        <span class="step-number">✓</span> Select Workspace
+    </div>
+    <div class="step done">
+        <span class="step-number">✓</span> Assessment Report
+    </div>
+    <div class="step active">
+        <span class="step-number">3</span> Remediation
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>🔧 Remediation Wizard</h3>
+            <span class="text-muted" id="wizard-progress">1 of {{ findings | length }}</span>
+        </div>
+
+        <p class="text-muted">
+            Walk through each finding, review the fix, and copy the command to run it yourself.
+        </p>
+
+        {% if not findings %}
+        <div class="alert alert-success text-center py-4">
+            <h4>✅ Nothing to fix!</h4>
+            <p>All findings are informational only or already addressed.</p>
+            <a href="/report/latest" class="btn btn-outline-primary">← Back to Report</a>
+        </div>
+        {% else %}
+
+        {% for finding in findings %}
+        <div class="wizard-finding" style="display: {{ 'block' if loop.first else 'none' }};">
+            <div class="finding-card severity-{{ finding.severity.value }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="severity-badge {{ finding.severity.value }}">{{ finding.severity.label }}</span>
+                        <strong class="ms-2">{{ finding.title }}</strong>
+                    </div>
+                    <span class="badge bg-secondary" id="badge-{{ finding.id }}">Pending</span>
+                </div>
+                <div class="card-body">
+                    <p>{{ finding.description }}</p>
+
+                    {% if finding.affected_resources %}
+                    <p class="mb-1"><strong>Affected:</strong></p>
+                    <ul>
+                        {% for res in finding.affected_resources %}
+                        <li><code>{{ res }}</code></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <p><strong>Impact:</strong> {{ finding.impact }}</p>
+
+                    <div class="card bg-light p-3 mb-3">
+                        <strong>📋 Steps to fix:</strong>
+                        <p class="mb-0 mt-2">{{ finding.remediation }}</p>
+                    </div>
+
+                    {% if finding.az_command %}
+                    <strong>Command to run:</strong>
+                    <div class="command-block mt-2">
+                        <button class="copy-btn" onclick="copyToClipboard(this)">📋 Copy</button>
+                        <code>{{ finding.az_command }}</code>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mt-2 mb-0">
+                        This finding requires manual action — see the remediation steps above.
+                    </div>
+                    {% endif %}
+
+                    {% if finding.doc_url %}
+                    <div class="mt-3">
+                        <a href="{{ finding.doc_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            📄 View documentation
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="wizard-nav">
+                <button class="btn btn-outline-secondary" id="wizard-prev" onclick="wizardPrev()" {% if loop.first %}disabled{% endif %}>
+                    ← Previous
+                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-success" onclick="markAddressed('{{ finding.id }}')">
+                        ✅ Mark as Addressed
+                    </button>
+                    <button class="btn btn-primary" id="wizard-next" onclick="wizardNext()">
+                        {{ 'Finish' if loop.last else 'Next →' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

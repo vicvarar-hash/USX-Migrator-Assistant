@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Assessment Report — {{ result.workspace_name }}{% endblock %}
+
+{% block steps %}
+<div class="step-indicator">
+    <div class="step done">
+        <span class="step-number">✓</span> Select Workspace
+    </div>
+    <div class="step active">
+        <span class="step-number">2</span> Assessment Report
+    </div>
+    <div class="step">
+        <span class="step-number">3</span> Remediation
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="text-center mb-4">
+    <h2>Assessment Report</h2>
+    <p class="text-muted">
+        Workspace: <strong>{{ result.workspace_name }}</strong> —
+        {{ result.timestamp[:16] | replace('T', ' ') }}
+    </p>
+</div>
+
+<!-- Comparison banner -->
+{% if comparison %}
+<div class="comparison-banner {{ 'improved' if comparison.delta_critical < 0 else ('worse' if comparison.delta_critical > 0 else 'same') }}">
+    <strong>📊 Compared to previous run ({{ comparison.previous_timestamp[:10] }}):</strong>
+    <span class="ms-2">
+        {{ comparison.previous_critical }} → {{ result.critical_count }} critical
+        {% if comparison.delta_critical < 0 %}
+            <span class="text-success">({{ comparison.delta_critical | abs }} resolved ✓)</span>
+        {% elif comparison.delta_critical > 0 %}
+            <span class="text-danger">(+{{ comparison.delta_critical }} new)</span>
+        {% else %}
+            <span class="text-muted">(unchanged)</span>
+        {% endif %}
+    </span>
+    {% if comparison.resolved_findings %}
+    <br><small class="text-muted">Resolved: {{ comparison.resolved_findings | join(', ') }}</small>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Discovery errors -->
+{% if result.discovery_errors %}
+{% for area, error in result.discovery_errors.items() %}
+<div class="discovery-warning">
+    ⚠️ <strong>Could not fetch {{ area }}:</strong> {{ error }}
+    <br><small>The assessment may be incomplete for this area.</small>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- Score + stats -->
+<div class="row mb-4">
+    <div class="col-md-4 text-center">
+        <div class="score-circle {{ 'score-high' if result.readiness_score >= 80 else ('score-mid' if result.readiness_score >= 50 else 'score-low') }}">
+            {{ result.readiness_score }}%
+            <small>Readiness</small>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="stat-card critical">
+                    <div class="stat-number">{{ result.critical_count }}</div>
+                    <div class="stat-label">Critical</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card warning">
+                    <div class="stat-number">{{ result.warning_count }}</div>
+                    <div class="stat-label">Warnings</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card info">
+                    <div class="stat-number">{{ result.info_count }}</div>
+                    <div class="stat-label">Info</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card ok">
+                    <div class="stat-number">{{ result.ok_count }}</div>
+                    <div class="stat-label">OK</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action buttons -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a href="/" class="btn btn-outline-secondary">← Back</a>
+    <a href="/report/download/markdown" class="btn btn-outline-primary">📥 Export Markdown</a>
+    <a href="/remediate/script" class="btn btn-warning">🔧 Download Fix-All Script</a>
+    <a href="/remediate/wizard" class="btn btn-primary">🔧 Fix One-by-One</a>
+    <a href="/checklist" class="btn btn-outline-success">✅ Pre-Flight Checklist</a>
+</div>
+
+<!-- Findings by category -->
+{% set categories = result.findings | map(attribute='category') | unique | list %}
+{% for category in categories %}
+<h4 class="mt-4 mb-3">{{ category }}</h4>
+{% set cat_findings = result.findings | selectattr('category', 'equalto', category) | list %}
+{% for finding in cat_findings | sort(attribute='severity.sort_order') %}
+<div class="finding-card severity-{{ finding.severity.value }}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <span class="severity-badge {{ finding.severity.value }}">{{ finding.severity.label }}</span>
+            <strong class="ms-2">{{ finding.title }}</strong>
+        </div>
+        {% if finding.doc_url %}
+        <a href="{{ finding.doc_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">📄 Docs</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <p>{{ finding.description }}</p>
+
+        {% if finding.affected_resources %}
+        <p class="mb-1"><strong>Affected resources:</strong></p>
+        <ul class="mb-2">
+            {% for res in finding.affected_resources %}
+            <li><code>{{ res }}</code></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <p><strong>Impact:</strong> {{ finding.impact }}</p>
+        <p><strong>Remediation:</strong> {{ finding.remediation }}</p>
+
+        {% if finding.az_command %}
+        <div class="command-block">
+            <button class="copy-btn" onclick="copyToClipboard(this)">📋 Copy</button>
+            <code>{{ finding.az_command }}</code>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endfor %}
+
+{% if not result.findings %}
+<div class="alert alert-success text-center py-5">
+    <h3>🎉 No migration issues found!</h3>
+    <p>Your workspace appears ready for the Defender portal migration.</p>
+    <p>Review the <a href="/checklist">Pre-Flight Checklist</a> for any manual steps before onboarding.</p>
+</div>
+{% endif %}
+{% endblock %}

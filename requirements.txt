@@ -1,0 +1,10 @@
+# USX Migrator Assistant
+
+flask>=3.0,<4.0
+azure-identity>=1.16,<2.0
+azure-mgmt-securityinsight>=2.0.0b2
+azure-mgmt-loganalytics>=13.0,<14.0
+azure-mgmt-subscription>=3.0,<4.0
+azure-mgmt-authorization>=4.0,<5.0
+azure-mgmt-logic>=10.0,<11.0
+azure-mgmt-resource>=23.0,<24.0

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Pre-Flight Checklist — {{ workspace_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h2 class="mb-2">✅ Pre-Flight Migration Checklist</h2>
+        <p class="text-muted mb-4">
+            These organizational and manual steps can't be detected automatically.
+            Check them off as you complete each one. Your progress is saved locally.
+        </p>
+
+        {% set checklist_items = [
+            ("data_residency", "Review data residency & privacy policy differences",
+             "Defender XDR data policies replace Sentinel policies after onboarding.",
+             "https://learn.microsoft.com/azure/sentinel/move-to-defender#review-differences-for-data-storage-and-privacy"),
+            ("rbac_mapping", "Plan RBAC mapping to Unified RBAC (URBAC)",
+             "Map existing Azure RBAC roles to Defender Unified RBAC before onboarding.",
+             "https://learn.microsoft.com/defender-xdr/compare-rbac-roles"),
+            ("soc_communication", "Communicate portal change to SOC team",
+             "Analysts need to know the new portal URL, UI changes, and updated workflows.",
+             ""),
+            ("defender_training", "Review Defender portal training resources",
+             "Microsoft provides video walkthroughs for all major scenarios.",
+             "https://www.youtube.com/playlist?list=PL3ZTgFEc7Lyska6WLWBzc8sob-kYA2jPj"),
+            ("dfc_connector", "Verify Defender for Cloud connector configuration",
+             "Ensure you won't get duplicate events after onboarding.",
+             "https://learn.microsoft.com/azure/defender-for-cloud/concept-integration-365"),
+            ("multi_workspace", "Review multi-workspace / multi-tenant setup",
+             "Onboard each workspace separately. Consider the multitenant portal for MSSPs.",
+             "https://learn.microsoft.com/unified-secops-platform/mto-requirements"),
+            ("test_nonprod", "Test in a non-production workspace first",
+             "Validate your specific configurations before migrating production.",
+             ""),
+            ("backup_rules", "Export/backup automation & analytics rules",
+             "Save a copy of your current rules before making any changes.",
+             ""),
+            ("api_integrations", "Review API integrations for field changes",
+             "providerName changes to 'Microsoft XDR'; incidentUrl → providerIncidentUrl.",
+             "https://learn.microsoft.com/azure/sentinel/move-to-defender#configure-apis"),
+            ("ticketing_system", "Update external ticketing system integrations",
+             "ServiceNow and others may lose incident Description field after onboarding.",
+             "")
+        ] %}
+
+        {% for key, title, description, doc_url in checklist_items %}
+        <div class="checklist-item {{ 'checked' if checklist.get(key) }}">
+            <input type="checkbox"
+                   id="check-{{ key }}"
+                   {{ 'checked' if checklist.get(key) }}
+                   onchange="toggleChecklist('{{ workspace_name }}', '{{ key }}', this.checked)">
+            <div class="flex-grow-1">
+                <label for="check-{{ key }}" class="fw-bold mb-0" style="cursor:pointer">{{ title }}</label>
+                <br><small class="text-muted">{{ description }}</small>
+            </div>
+            {% if doc_url %}
+            <a href="{{ doc_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">📄</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="mt-4 d-flex gap-2">
+            <a href="/report/latest" class="btn btn-outline-primary">← Back to Report</a>
+            <a href="/" class="btn btn-outline-secondary">🏠 Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
