@@ -54,25 +54,71 @@ Open **http://localhost:5000** in your browser.
 The app discovers all Sentinel-enabled workspaces across your subscriptions. Pick the one you want to assess.
 
 ### Step 2: Assessment Report
-The app fetches your workspace configuration and checks it against 23+ known migration issues:
+The app fetches your workspace configuration and checks it against **23 known migration issues across 8 categories**:
 
-| Category | Checks |
-|----------|--------|
-| Automation Rules & Playbooks | Alert triggers, incident provider, description field, title conditions, updated-by, incident creation rules, manual playbook runs, latency |
-| Analytics Rules | Fusion rule, alert-only rules, alert grouping |
-| Data Connectors | Defender for Cloud (tenant/subscription), hidden connectors |
-| Data Storage | CMK encryption, data residency |
-| Incidents & Alerts | Programmatic incidents, comment editing |
-| RBAC & Permissions | URBAC mapping |
-| Advanced Hunting | Bookmarks, IdentityInfo table, similar incidents |
-| Multi-Workspace | Workspace Manager |
+#### 1. Automation Rules & Playbooks (8 checks)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 1 | Alert Trigger | 🔴 Critical | Automation rules using alert triggers — not supported in Defender |
+| 2 | Incident Provider | 🔴 Critical | Rules with `IncidentProviderName` condition — not supported |
+| 3 | Description Field | ⚠️ Warning | Rules using `Description` condition — maps differently in Defender |
+| 4 | Incident Title | ⚠️ Warning | Rules using `Title` condition — behaves differently |
+| 5 | Updated By | ⚠️ Warning | Rules using `UpdatedBy` condition — not supported |
+| 6 | Incident Creation | 🔴 Critical | Rules with "incident creation" action — not available in Defender |
+| 7 | Playbook Manual Run | ⚠️ Warning | Playbooks with manual triggers — need updated auth config |
+| 8 | Playbook Latency | ℹ️ Info | Playbook execution latency — expect higher latency in Defender |
+
+#### 2. Analytics Rules (3 checks)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 9 | Fusion Rules | ⚠️ Warning | Advanced multistage attack detection — changes in Defender |
+| 10 | Alert-Only Rules | ⚠️ Warning | Rules without incident creation enabled — need review |
+| 11 | Alert Grouping Reopen | 🔴 Critical | Alert grouping with "reopen on new alert" — not supported |
+
+#### 3. Data Connectors (3 checks)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 12 | Tenant-level DfC | 🔴 Critical | Defender for Cloud connector at tenant level — must reconfigure |
+| 13 | Subscription-level DfC | 🔴 Critical | Defender for Cloud connector per subscription — must reconfigure |
+| 14 | Hidden Connectors | ℹ️ Info | Connectors that may be hidden in the Defender portal UI |
+
+#### 4. Data Storage (2 checks)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 15 | CMK Encryption | ⚠️ Warning | Customer-managed keys — need verification post-migration |
+| 16 | Data Residency | ℹ️ Info | Data residency compliance — verify after migration |
+
+#### 5. Incidents & Alerts (2 checks)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 17 | Programmatic Incidents | 🔴 Critical | `SecurityIncident` table API usage — API changes in Defender |
+| 18 | Comment Editing | ℹ️ Info | Incident comment editing — not available in Defender |
+
+#### 6. RBAC & Permissions (1 check)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 19 | URBAC Mapping | 🔴 Critical | Sentinel RBAC roles — must map to Defender URBAC roles |
+
+#### 7. Advanced Hunting (3 checks)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 20 | Bookmarks | ⚠️ Warning | Hunting bookmarks — not available in Defender portal |
+| 21 | IdentityInfo Table | ⚠️ Warning | UEBA IdentityInfo table — behaves differently in Defender |
+| 22 | Similar Incidents | ℹ️ Info | Similar incidents feature — not available in Defender |
+
+#### 8. Multi-Workspace (1 check)
+| # | Check | Severity | What it detects |
+|---|-------|----------|-----------------|
+| 23 | Workspace Manager | 🔴 Critical | Workspace Manager — not supported in Defender portal |
+
+**Severity summary: 8 Critical · 8 Warning · 7 Info** (maximum if all issues detected — your report will only show findings relevant to your workspace)
 
 Each finding includes:
-- Severity (🔴 Critical / ⚠️ Warning / ℹ️ Info)
+- Severity level (🔴 Critical / ⚠️ Warning / ℹ️ Info)
 - Description and impact specific to your setup
-- Step-by-step remediation
+- Step-by-step remediation guidance
 - Ready-to-run `az` CLI command
-- Link to MS Learn documentation
+- Link to official MS Learn documentation
 
 ### Step 3: Remediation
 Choose how to fix:

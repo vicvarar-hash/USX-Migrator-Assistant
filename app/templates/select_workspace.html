@@ -45,6 +45,150 @@
                 </div>
                 {% endif %}
 
+                <div class="mb-4">
+                    <h5 class="mb-3">📋 What We Check — 23 Rules Across 8 Categories</h5>
+                    <div class="accordion" id="checksAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat1">
+                                    <span class="me-2">⚙️</span> <strong>Automation Rules & Playbooks</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">8 checks</span>
+                                </button>
+                            </h2>
+                            <div id="cat1" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Alert triggers not supported in Defender</td></tr>
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>IncidentProviderName condition not supported</td></tr>
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Description condition maps differently</td></tr>
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Title condition behaves differently</td></tr>
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>UpdatedBy condition not supported</td></tr>
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Incident creation action not available</td></tr>
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Manual-trigger playbooks need updated auth</td></tr>
+                                        <tr><td><span class="badge bg-info text-dark">Info</span></td><td>Higher playbook latency expected</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat2">
+                                    <span class="me-2">📊</span> <strong>Analytics Rules</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">3 checks</span>
+                                </button>
+                            </h2>
+                            <div id="cat2" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Fusion multistage detection changes</td></tr>
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Alert-only rules (no incident creation) need review</td></tr>
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Alert grouping "reopen on new alert" not supported</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat3">
+                                    <span class="me-2">🔌</span> <strong>Data Connectors</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">3 checks</span>
+                                </button>
+                            </h2>
+                            <div id="cat3" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Tenant-level Defender for Cloud — must reconfigure</td></tr>
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Subscription-level DfC — must reconfigure</td></tr>
+                                        <tr><td><span class="badge bg-info text-dark">Info</span></td><td>Some connectors hidden in Defender portal</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat4">
+                                    <span class="me-2">💾</span> <strong>Data Storage</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">2 checks</span>
+                                </button>
+                            </h2>
+                            <div id="cat4" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Customer-managed keys need verification</td></tr>
+                                        <tr><td><span class="badge bg-info text-dark">Info</span></td><td>Data residency compliance — verify after migration</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat5">
+                                    <span class="me-2">🚨</span> <strong>Incidents & Alerts</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">2 checks</span>
+                                </button>
+                            </h2>
+                            <div id="cat5" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>SecurityIncident table API changes</td></tr>
+                                        <tr><td><span class="badge bg-info text-dark">Info</span></td><td>Comment editing not available in Defender</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat6">
+                                    <span class="me-2">🔐</span> <strong>RBAC & Permissions</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">1 check</span>
+                                </button>
+                            </h2>
+                            <div id="cat6" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Sentinel RBAC → Defender URBAC role mapping</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat7">
+                                    <span class="me-2">🔎</span> <strong>Advanced Hunting</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">3 checks</span>
+                                </button>
+                            </h2>
+                            <div id="cat7" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>Hunting bookmarks not available</td></tr>
+                                        <tr><td><span class="badge bg-warning text-dark">Warning</span></td><td>IdentityInfo (UEBA) table behaves differently</td></tr>
+                                        <tr><td><span class="badge bg-info text-dark">Info</span></td><td>Similar incidents feature not available</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cat8">
+                                    <span class="me-2">🌐</span> <strong>Multi-Workspace</strong>
+                                    <span class="badge bg-secondary ms-auto me-2">1 check</span>
+                                </button>
+                            </h2>
+                            <div id="cat8" class="accordion-collapse collapse" data-bs-parent="#checksAccordion">
+                                <div class="accordion-body p-2">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><span class="badge bg-danger">Critical</span></td><td>Workspace Manager not supported in Defender</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">
+                        <strong>Max severity breakdown:</strong> 8 🔴 Critical · 8 ⚠️ Warning · 7 ℹ️ Info — your report will only show findings relevant to your workspace.
+                    </p>
+                </div>
+
                 {% if workspaces %}
                 <form action="/assess" method="POST" onsubmit="showLoading('Discovering workspace configuration...')">
                     <div class="mb-4">
