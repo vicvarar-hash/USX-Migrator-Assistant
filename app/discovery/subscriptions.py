@@ -33,9 +33,10 @@ def list_subscriptions(
 def list_sentinel_workspaces(
     credential: DefaultAzureCredential,
     subscription_id: str,
-) -> list[SentinelWorkspace]:
+) -> tuple[list[SentinelWorkspace], list[SentinelWorkspace]]:
     """Return Log Analytics workspaces that have the SecurityInsights solution.
 
+    Returns a tuple of ``(sentinel_workspaces, non_sentinel_workspaces)``.
     We enumerate all workspaces in the subscription, then probe each for
     Sentinel alert rules as a lightweight check that the solution is enabled.
     """
@@ -50,7 +51,7 @@ def list_sentinel_workspaces(
             subscription_id,
             exc,
         )
-        return []
+        return [], []
 
     # Resolve subscription display name once
     sub_name = subscription_id
@@ -61,6 +62,8 @@ def list_sentinel_workspaces(
     except Exception:
         pass
 
+    non_sentinel_workspaces: list[SentinelWorkspace] = []
+
     for ws in all_ws:
         if not ws.name or not ws.id:
             continue
@@ -70,20 +73,22 @@ def list_sentinel_workspaces(
         if not rg:
             continue
 
+        ws_obj = SentinelWorkspace(
+            subscription_id=subscription_id,
+            subscription_name=sub_name,
+            resource_group=rg,
+            workspace_name=ws.name,
+            workspace_id=ws.customer_id or ws.id,
+            location=ws.location or "",
+        )
+
         # Check whether Sentinel is enabled by probing SecurityInsights
         if _has_sentinel(credential, subscription_id, rg, ws.name):
-            workspaces.append(
-                SentinelWorkspace(
-                    subscription_id=subscription_id,
-                    subscription_name=sub_name,
-                    resource_group=rg,
-                    workspace_name=ws.name,
-                    workspace_id=ws.customer_id or ws.id,
-                    location=ws.location or "",
-                )
-            )
+            workspaces.append(ws_obj)
+        else:
+            non_sentinel_workspaces.append(ws_obj)
 
-    return workspaces
+    return workspaces, non_sentinel_workspaces
 
 
 # -- helpers -----------------------------------------------------------------

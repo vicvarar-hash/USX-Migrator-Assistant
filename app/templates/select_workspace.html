@@ -213,6 +213,31 @@
                     <strong>No Sentinel workspaces found.</strong>
                     Make sure your account has access to subscriptions with Microsoft Sentinel enabled.
                 </div>
+                {% if non_sentinel_workspaces %}
+                <div class="alert alert-warning mt-3">
+                    <strong>⚠️ Found {{ non_sentinel_workspaces|length }} Log Analytics workspace(s) without Sentinel:</strong>
+                    <ul class="mb-0 mt-2">
+                    {% for ws in non_sentinel_workspaces %}
+                        <li>
+                            <strong>{{ ws.workspace_name }}</strong>
+                            ({{ ws.subscription_name }} / {{ ws.resource_group }}) — {{ ws.location }}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                    <hr class="my-2">
+                    <small>
+                        To test this app, you need to <strong>onboard Sentinel</strong> on one of these workspaces:
+                        <br>
+                        <a href="https://learn.microsoft.com/azure/sentinel/quickstart-onboard" target="_blank" class="alert-link">
+                            📖 Quickstart: Onboard Microsoft Sentinel
+                        </a>
+                        <br>
+                        Or use this CLI command:
+                        <br>
+                        <code>az sentinel onboarding-state create --resource-group &lt;RG&gt; --workspace-name &lt;WS&gt; --name default</code>
+                    </small>
+                </div>
+                {% endif %}
                 {% endif %}
 
                 {% if history %}

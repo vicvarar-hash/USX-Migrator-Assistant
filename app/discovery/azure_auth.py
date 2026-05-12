@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import logging
+import os
+import shutil
 from typing import Any
 
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, AzureCliCredential
 from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.core.exceptions import ClientAuthenticationError, HttpResponseError
 
@@ -23,8 +25,25 @@ _SUBSCRIPTION_ROLES = {
 }
 
 
-def get_credential() -> DefaultAzureCredential:
-    """Return a DefaultAzureCredential (expects ``az login`` session)."""
+def get_credential() -> AzureCliCredential | DefaultAzureCredential:
+    """Return an Azure credential, preferring AzureCliCredential.
+
+    AzureCliCredential is preferred because it directly reads the ``az login``
+    token cache without needing the ``az`` CLI on PATH.  If that fails we fall
+    back to ``DefaultAzureCredential``.
+    """
+    # Ensure the Azure CLI is discoverable — Flask may inherit a limited PATH
+    _ensure_az_on_path()
+
+    try:
+        cred = AzureCliCredential()
+        # Validate the credential with a quick token request
+        cred.get_token("https://management.azure.com/.default")
+        logger.info("Using AzureCliCredential")
+        return cred
+    except Exception as exc:
+        logger.debug("AzureCliCredential failed: %s — falling back to DefaultAzureCredential", exc)
+
     try:
         return DefaultAzureCredential()
     except Exception as exc:
@@ -32,6 +51,34 @@ def get_credential() -> DefaultAzureCredential:
         raise RuntimeError(
             "Could not authenticate to Azure. Run 'az login' first."
         ) from exc
+
+
+def _ensure_az_on_path() -> None:
+    """Add common Azure CLI install locations to PATH if ``az`` is not found."""
+    if shutil.which("az"):
+        return
+
+    extra_dirs = []
+    # Windows default install location
+    program_files = os.environ.get("ProgramFiles", r"C:\Program Files")
+    extra_dirs.append(os.path.join(program_files, "Microsoft SDKs", "Azure", "CLI2", "wbin"))
+    program_files_x86 = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+    extra_dirs.append(os.path.join(program_files_x86, "Microsoft SDKs", "Azure", "CLI2", "wbin"))
+    # Also check user-level pip install
+    local_bin = os.path.expanduser("~/.local/bin")
+    extra_dirs.append(local_bin)
+
+    current_path = os.environ.get("PATH", "")
+    for d in extra_dirs:
+        if os.path.isdir(d) and d not in current_path:
+            os.environ["PATH"] = d + os.pathsep + current_path
+            current_path = os.environ["PATH"]
+            logger.info("Added %s to PATH for Azure CLI discovery", d)
+
+    if shutil.which("az"):
+        logger.info("Azure CLI found after PATH update")
+    else:
+        logger.warning("Azure CLI (az) not found on PATH — AzureCliCredential may fail")
 
 
 def check_permissions(

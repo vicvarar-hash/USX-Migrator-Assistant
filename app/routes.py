@@ -27,6 +27,7 @@ def index():
 
     auth_error = None
     workspaces = []
+    non_sentinel_workspaces = []
     permission_warnings = []
     history = []
 
@@ -36,10 +37,13 @@ def index():
 
         for sub_id, sub_name in subscriptions:
             try:
-                ws_list = list_sentinel_workspaces(credential, sub_id)
-                for ws in ws_list:
+                sentinel_ws, non_sentinel_ws = list_sentinel_workspaces(credential, sub_id)
+                for ws in sentinel_ws:
                     ws.subscription_name = sub_name
-                workspaces.extend(ws_list)
+                for ws in non_sentinel_ws:
+                    ws.subscription_name = sub_name
+                workspaces.extend(sentinel_ws)
+                non_sentinel_workspaces.extend(non_sentinel_ws)
             except Exception as e:
                 log.warning("Failed listing workspaces in %s: %s", sub_id, e)
 
@@ -58,6 +62,7 @@ def index():
     return render_template(
         "select_workspace.html",
         workspaces=workspaces,
+        non_sentinel_workspaces=non_sentinel_workspaces,
         auth_error=auth_error,
         permission_warnings=permission_warnings,
         history=sorted(history, key=lambda x: x.get("timestamp", ""), reverse=True)[:10],
